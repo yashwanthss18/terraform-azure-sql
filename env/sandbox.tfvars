@@ -1,0 +1,6 @@
+resource_group_name = "rg-sql-sandbox"
+location            = "centralindia"
+sql_server_name     = "sandboxsqlserver01"
+database_name       = "sandboxdb"
+admin_username      = "sqladmin"
+admin_password      = "StrongPassword@123"
