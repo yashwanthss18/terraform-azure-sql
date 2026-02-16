@@ -1,16 +1,17 @@
-name: Terraform Deploy
+name: Terraform Azure Deploy
 
 on:
   workflow_call:
-    secrets:
-      ARM_CLIENT_ID:
+    inputs:
+      sql_server_name:
         required: true
-      ARM_CLIENT_SECRET:
+        type: string
+      database_name:
         required: true
-      ARM_SUBSCRIPTION_ID:
+        type: string
+      location:
         required: true
-      ARM_TENANT_ID:
-        required: true
+        type: string
 
 jobs:
   terraform:
@@ -21,13 +22,19 @@ jobs:
         working-directory: environments/sandbox
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
 
-      - run: terraform init
-      - run: terraform apply -auto-approve
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve \
+          -var="sql_server_name=${{ inputs.sql_server_name }}" \
+          -var="database_name=${{ inputs.database_name }}" \
+          -var="location=${{ inputs.location }}"
