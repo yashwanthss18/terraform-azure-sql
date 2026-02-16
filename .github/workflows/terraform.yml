@@ -1,17 +1,7 @@
-name: Terraform Azure Deploy
+name: Terraform Deploy
 
 on:
   workflow_call:
-    inputs:
-      sql_server_name:
-        required: true
-        type: string
-      database_name:
-        required: true
-        type: string
-      location:
-        required: true
-        type: string
 
 jobs:
   terraform:
@@ -22,19 +12,23 @@ jobs:
         working-directory: environments/sandbox
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
+      # ✅ Azure login using JSON secret
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # ✅ Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # ✅ Terraform Init
       - name: Terraform Init
         run: terraform init
 
+      # ✅ Terraform Apply using tfvars already in repo
       - name: Terraform Apply
-        run: terraform apply -auto-approve \
-          -var="sql_server_name=${{ inputs.sql_server_name }}" \
-          -var="database_name=${{ inputs.database_name }}" \
-          -var="location=${{ inputs.location }}"
+        run: terraform apply -auto-approve -var-file=terraform.tfvars
